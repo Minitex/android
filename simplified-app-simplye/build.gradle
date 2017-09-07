@@ -28,7 +28,7 @@ description = 'simplified-app-simplye'
 
 dependencies {
   compile project(':simplified-app-shared')
-  compile 'com.scandit:scanditsdk-android:5.3.0'
+ // compile 'com.scandit:scanditsdk-android:5.3.0'
   //compile 'com.scandit:libscanditsdk-android:5.3.0'
   compile group: 'org.nypl.drm', name: 'nypl-drm-adobe-provider', version: '1.0.0'
   compile group: 'org.nypl.drm', name: 'libnypl_adobe', version: '1.0.0'
