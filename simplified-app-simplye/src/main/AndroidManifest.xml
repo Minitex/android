@@ -64,6 +64,12 @@
       android:exported="false">
     </activity>
     <activity
+      android:name="org.nypl.simplified.app.ScanditActivity"
+      android:configChanges="orientation|screenSize"
+      android:theme="@android:style/Theme.NoTitleBar"
+      android:exported="true">
+    </activity>
+    <activity
       android:name="org.nypl.simplified.app.catalog.MainBooksActivity"
       android:configChanges="orientation|screenSize"
       android:label="@string/catalog"
