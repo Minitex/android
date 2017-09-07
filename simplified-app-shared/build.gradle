@@ -44,5 +44,4 @@ dependencies {
   compile group: 'joda-time', name: 'joda-time', version: '2.9.9'
   compile group: 'javax.annotation', name: 'javax.annotation-api', version: '1.2-b01'
   compile 'com.github.ronaldsmartin:Material-ViewPagerIndicator:1.0.4'
-  compile 'com.scandit:scanditsdk-android:5.3.0'
 }
