@@ -21,6 +21,7 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.io7m.jfunctional.Option;
 import com.io7m.jfunctional.OptionType;
@@ -455,7 +456,11 @@ public final class LoginDialog extends DialogFragment
               @Override public void onClick(
                       final @Nullable View v)
               {
-               // TODO: implement
+                final Toast toast = Toast.makeText(LoginDialog.this.getActivity(), "Barcode scan starting", Toast.LENGTH_SHORT);
+                toast.show();
+
+                final Intent barcodeScanner = new Intent(LoginDialog.this.getActivity(), ScanditActivity.class);
+                startActivity(barcodeScanner);
               }
             });
 
