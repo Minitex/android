@@ -50,9 +50,12 @@ dependencies {
 apply plugin: 'android-native-dependencies'
 
 native_dependencies {
-  artifact (group: 'com.scandit', name: 'libscanditsdk-android', version: '5.3.0',
-     classifier: 'armeabi-v7a')
+  artifact(group: 'com.scandit', name: 'libscanditsdk-android', version: '5.3.0', classifier: 'x86')
+  artifact(group: 'com.scandit', name: 'libscanditsdk-android', version: '5.3.0', classifier: 'arm64-v8a')
+  artifact(group: 'com.scandit', name: 'libscanditsdk-android', version: '5.3.0', classifier: 'armeabi')
+  artifact(group: 'com.scandit', name: 'libscanditsdk-android', version: '5.3.0', classifier: 'armeabi-v7a')
+
       {
-      addLibPrefixToArtifact = false
-   }
+        addLibPrefixToArtifact = false
+      }
 }
