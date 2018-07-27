@@ -478,5 +478,20 @@
     "supportsCardCreator" : false,
     "supportsReservations": true,
     "supportsSimplyESync": true
+  },
+  {
+    "id" : 100,
+    "pathComponent" : "100",
+    "name" : "Open Textbook Library",
+    "subtitle" : "Textbooks free to download and read without a library card.",
+    "logo" : "LibraryLogoMagic",
+    "needsAuth" : false,
+    "supportsSimplyESync" : false,
+    "supportsBarcodeScanner" : false,
+    "supportsBarcodeDisplay" : false,
+    "supportsCardCreator" : false,
+    "supportsReservations" : false,
+    "catalogUrl" : "http://open.minitex.org/textbooks",
+    "mainColor" : "#497049"
   }
 ]
