@@ -322,14 +322,21 @@ public final class OPDSAcquisitionFeedEntryParser
           for (Element second_level_e : second_level_list) {
             if ("application/epub+zip".equals(second_level_e.getAttribute("type"))) {
               return true;
+            } else if ("application/pdf".equals(second_level_e.getAttribute("type"))) {
+              return true;
             }
           }
         } else if ("application/epub+zip".equals(top_level_e.getAttribute("type"))) {
+          return true;
+        } else if ("application/pdf".equals(top_level_e.getAttribute("type"))) {
           return true;
         }
       }
     }
     else if ("application/epub+zip".equals(link.getAttribute("type"))) {
+      return true;
+    }
+    else if ("application/pdf".equals(link.getAttribute("type"))) {
       return true;
     }
 
