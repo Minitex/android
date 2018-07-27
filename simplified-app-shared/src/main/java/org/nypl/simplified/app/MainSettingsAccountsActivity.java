@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -30,6 +31,7 @@ import org.nypl.simplified.multilibrary.AccountsRegistry;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -88,45 +90,28 @@ public final class MainSettingsAccountsActivity extends SimplifiedActivity
 
     {
       final Account account = Simplified.getCurrentAccount();
-      final TextView tv =
-        NullCheck.notNull((TextView) current_account.findViewById(android.R.id.text1));
+      final TextView tv = NullCheck.notNull(current_account.findViewById(android.R.id.text1));
+      final TextView tv2 = NullCheck.notNull(current_account.findViewById(android.R.id.text2));
+      final int mainColor = ContextCompat.getColor(this, R.color.app_primary_color);
       tv.setText(account.getName());
-      tv.setTextColor(R.color.text_black);
-      final TextView tv2 =
-        NullCheck.notNull((TextView) current_account.findViewById(android.R.id.text2));
+      tv.setTextColor(mainColor);
       tv2.setText(account.getSubtitle());
-      tv2.setTextColor(R.color.text_black);
+      tv2.setTextColor(mainColor);
 
       final ImageView icon_view =
         NullCheck.notNull((ImageView) current_account.findViewById(R.id.cellIcon));
-      if (account.getId() == 0) {
-        icon_view.setImageResource(R.drawable.account_logo_nypl);
-      } else if (account.getId() == 1) {
-        icon_view.setImageResource(R.drawable.account_logo_bpl);
-      } else if (account.getId() == 2) {
-        icon_view.setImageResource(R.drawable.account_logo_instant);
-      } else if (account.getId() == 7) {
-        icon_view.setImageResource(R.drawable.account_logo_alameda);
-      } else if (account.getId() == 8) {
-        icon_view.setImageResource(R.drawable.account_logo_hcls);
-      } else if (account.getId() == 9) {
-        icon_view.setImageResource(R.drawable.account_logo_mcpl);
-      } else if (account.getId() == 10) {
-        icon_view.setImageResource(R.drawable.account_logo_fcpl);
-      } else if (account.getId() == 11) {
-        icon_view.setImageResource(R.drawable.account_logo_anne_arundel);
-      } else if (account.getId() == 12) {
-        icon_view.setImageResource(R.drawable.account_logo_bgc);
-      } else if (account.getId() == 13) {
-        icon_view.setImageResource(R.drawable.account_logo_smcl);
-      } else if (account.getId() == 14) {
-        icon_view.setImageResource(R.drawable.account_logo_cl);
-      } else if (account.getId() == 15) {
-        icon_view.setImageResource(R.drawable.account_logo_ccpl);
-      } else if (account.getId() == 16) {
-        icon_view.setImageResource(R.drawable.account_logo_ccl);
-      }
 
+      final String resource_path = "drawable/" + account.getLowerCaseLogo();
+      final int resource_id = this.getApplicationContext().getResources().getIdentifier(
+          resource_path,
+          null,
+          this.getApplicationContext().getPackageName());
+
+      if (resource_id != 0) {
+        icon_view.setImageResource(resource_id);
+      } else {
+        icon_view.setImageResource(R.drawable.librarylogomagic);
+      }
 
       current_account.setOnClickListener(new View.OnClickListener() {
         @Override
@@ -179,44 +164,27 @@ public final class MainSettingsAccountsActivity extends SimplifiedActivity
           }
 
           final Account account = NullCheck.notNull(dia.get(position));
-
-          final TextView tv =
-            NullCheck.notNull((TextView) v.findViewById(android.R.id.text1));
+          final TextView tv = NullCheck.notNull(v.findViewById(android.R.id.text1));
+          final TextView tv2 = NullCheck.notNull(v.findViewById(android.R.id.text2));
+          final int mainColor = ContextCompat.getColor(this.getContext(), R.color.app_primary_color);
           tv.setText(account.getName());
-          tv.setTextColor(R.color.text_black);
-          final TextView tv2 =
-            NullCheck.notNull((TextView) v.findViewById(android.R.id.text2));
+          tv.setTextColor(mainColor);
           tv2.setText(account.getSubtitle());
-          tv2.setTextColor(R.color.text_black);
+          tv2.setTextColor(mainColor);
 
           final ImageView icon_view =
-            NullCheck.notNull((ImageView) v.findViewById(R.id.cellIcon));
-          if (account.getId() == 0) {
-            icon_view.setImageResource(R.drawable.account_logo_nypl);
-          } else if (account.getId() == 1) {
-            icon_view.setImageResource(R.drawable.account_logo_bpl);
-          } else if (account.getId() == 2) {
-            icon_view.setImageResource(R.drawable.account_logo_instant);
-          } else if (account.getId() == 7) {
-            icon_view.setImageResource(R.drawable.account_logo_alameda);
-          } else if (account.getId() == 8) {
-            icon_view.setImageResource(R.drawable.account_logo_hcls);
-          } else if (account.getId() == 9) {
-            icon_view.setImageResource(R.drawable.account_logo_mcpl);
-          } else if (account.getId() == 10) {
-            icon_view.setImageResource(R.drawable.account_logo_fcpl);
-          } else if (account.getId() == 11) {
-            icon_view.setImageResource(R.drawable.account_logo_anne_arundel);
-          } else if (account.getId() == 12) {
-            icon_view.setImageResource(R.drawable.account_logo_bgc);
-          } else if (account.getId() == 13) {
-            icon_view.setImageResource(R.drawable.account_logo_smcl);
-          } else if (account.getId() == 14) {
-            icon_view.setImageResource(R.drawable.account_logo_cl);
-          } else if (account.getId() == 15) {
-            icon_view.setImageResource(R.drawable.account_logo_ccpl);
-          } else if (account.getId() == 16) {
-            icon_view.setImageResource(R.drawable.account_logo_ccl);
+            NullCheck.notNull(v.findViewById(R.id.cellIcon));
+
+          final String resource_path = "drawable/" + account.getLowerCaseLogo();
+          final int resource_id = this.getContext().getResources().getIdentifier(
+              resource_path,
+              null,
+              this.getContext().getPackageName());
+
+          if (resource_id != 0) {
+            icon_view.setImageResource(resource_id);
+          } else {
+            icon_view.setImageResource(R.drawable.librarylogomagic);
           }
 
           return v;
@@ -252,10 +220,28 @@ public final class MainSettingsAccountsActivity extends SimplifiedActivity
         }
       }
 
+      java.util.Collections.sort(all, new Comparator<Account>() {
+        @Override
+        public int compare(final Account a, final Account b) {
+          // Check if we're one of the three "special" libraries that always come first.
+          // This is a complete hack.
+          if (a.getId() <= 2 || b.getId() <= 2) {
+            // One of the libraries is special, so sort it first. Lower ids are "more
+            // special" than higher ids and thus show up earlier.
+            return a.getId() - b.getId();
+          } else {
+            // Neither library is special so we just go alphabetically.
+            return a.getName().compareToIgnoreCase(b.getName());
+          }
+        }
+      });
+
+      int index = 0;
       for (Account account : all) {
         if (registry.getExistingAccount(account.getId()) == null) {
-          menu.getMenu().add(Menu.NONE, account.getId(), account.getId(), account.getName());
+          menu.getMenu().add(Menu.NONE, account.getId(), index, account.getName());
         }
+        ++index;
       }
 
       menu.show();

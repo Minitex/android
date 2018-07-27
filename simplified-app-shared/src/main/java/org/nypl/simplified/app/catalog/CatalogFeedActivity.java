@@ -3,10 +3,10 @@ package org.nypl.simplified.app.catalog;
 import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.FragmentManager;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -39,6 +39,7 @@ import org.nypl.simplified.app.R;
 import org.nypl.simplified.app.Simplified;
 import org.nypl.simplified.app.SimplifiedActivity;
 import org.nypl.simplified.app.SimplifiedCatalogAppServicesType;
+import org.nypl.simplified.app.ThemeMatcher;
 import org.nypl.simplified.app.utilities.UIThread;
 import org.nypl.simplified.assertions.Assertions;
 import org.nypl.simplified.books.core.AccountBarcode;
@@ -86,6 +87,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.Future;
 
@@ -249,8 +251,6 @@ public abstract class CatalogFeedActivity extends CatalogActivity implements
         this.retryFeed();
       }
     }
-
-
   }
 
   /**
@@ -493,6 +493,44 @@ public abstract class CatalogFeedActivity extends CatalogActivity implements
 
   private CatalogFeedArgumentsType getArguments()
   {
+    /*
+     * FIXME: When real navigation support comes into the app to support age-gated
+     * collections, like the SimplyE Collection, remove this hack.
+     */
+    final Resources res = NullCheck.notNull(this.getResources());
+    final String lib_title =
+      NullCheck.notNull(res.getString(R.string.feature_app_name));
+    final int libraryID = Simplified.getCurrentAccount().getId();
+    if (libraryID == 2 && this.getClass() == MainCatalogActivity.class) {
+      if (Simplified.getSharedPrefs().contains("age13") == false) {
+        //Show Age Verification and load <13 to be safe
+        showAgeCheckAlert();
+      }
+      final boolean over13 = Simplified.getSharedPrefs().getBoolean("age13");
+      final URI ageURI;
+      try {
+        if (over13) {
+          ageURI = new URI(Simplified.getCurrentAccount().getCatalogUrl13AndOver());
+        } else {
+          ageURI = new URI(Simplified.getCurrentAccount().getCatalogUrlUnder13());
+        }
+        return new CatalogFeedArgumentsRemote(
+          false,
+          ImmutableStack.empty(),
+          lib_title,
+          ageURI,
+          false
+        );
+      } catch (Exception e) {
+        CatalogFeedActivity.LOG.error(
+          "error constructing SimplyE collection uri: {}", e.getMessage(), e);
+      }
+    }
+    /*
+     * End of hack..
+     */
+
+
     /**
      * Attempt to fetch arguments.
      */
@@ -688,44 +726,29 @@ public abstract class CatalogFeedActivity extends CatalogActivity implements
     return true;
   }
 
-  private void onCreateOptionsMenuSearchItem(
-    final Menu menu_nn)
-  {
+
+
+  /**
+   * If the feed actually has a search URI, then show the search field.
+   * Otherwise, disable and hide it.
+   */
+  private void onCreateOptionsMenuSearchItem(final Menu menu_nn) {
     final MenuItem search_item = menu_nn.findItem(R.id.catalog_action_search);
 
-    /**
-     * If the feed actually has a search URI, then show the search field.
-     * Otherwise, disable and hide it.
-     */
-
     final FeedType feed_actual = NullCheck.notNull(this.feed);
+
     final OptionType<FeedSearchType> search_opt = feed_actual.getFeedSearch();
+
+    // Set some placeholder text
+    final CatalogFeedArgumentsType args = this.getArguments();
+
     boolean search_ok = false;
     if (search_opt.isSome()) {
-      final Some<FeedSearchType> search_some =
-        (Some<FeedSearchType>) search_opt;
+      final Some<FeedSearchType> search_some = (Some<FeedSearchType>) search_opt;
 
       this.search_view = (SearchView) search_item.getActionView();
-      this.search_view.setSubmitButtonEnabled(true);
-      this.search_view.setIconifiedByDefault(false);
-      search_item.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS);
-      search_item.expandActionView();
 
-      /**
-       * Set some placeholder text
-       */
-
-      final CatalogFeedArgumentsType args = this.getArguments();
-      this.search_view.setQueryHint("Search " + this.feed.getFeedTitle());
-      if (args.getTitle().startsWith("Search"))
-      {
-        this.search_view.setQueryHint(args.getTitle());
-      }
-
-      /**
-       * Check that the search URI is of an understood type.
-       */
-
+      // Check that the search URI is of an understood type.
       final Resources rr = NullCheck.notNull(this.getResources());
       final FeedSearchType search = search_some.get();
       search_ok = search.matchSearch(
@@ -748,13 +771,32 @@ public abstract class CatalogFeedActivity extends CatalogActivity implements
             return NullCheck.notNull(Boolean.TRUE);
           }
         });
+
+    } else {
+      CatalogFeedActivity.LOG.debug("Feed has no search opts.");
     }
 
     if (search_ok) {
+      this.search_view.setSubmitButtonEnabled(true);
+      this.search_view.setIconifiedByDefault(false);
+      search_item.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS);
+      search_item.expandActionView();
+
+      // display either the category title or the previously searched keywords 
+      this.search_view.setQueryHint(String.format(getString(R.string.search_hint_format), Objects.toString(this.feed.getFeedTitle(), getString(R.string.search_hint_feed_title_default))));
+      if (args.getTitle().startsWith(getString(R.string.search_hint_prefix))) {
+        this.search_view.setQueryHint(args.getTitle());
+      }
+
       search_item.setEnabled(true);
       search_item.setVisible(true);
+    } else {
+      search_item.setEnabled(false);
+      search_item.collapseActionView();
+      search_item.setVisible(false);
     }
   }
+
 
   @Override protected void onDestroy()
   {
@@ -954,43 +996,30 @@ public abstract class CatalogFeedActivity extends CatalogActivity implements
     return Unit.unit();
   }
 
-  /**
-   *
-   */
   public void showAgeCheckAlert() {
+    final AlertDialog.Builder builder = new AlertDialog.Builder(CatalogFeedActivity.this);
 
-    if (!Simplified.getCurrentAccount().needsAuth() && !Simplified.getSharedPrefs().contains("age13")) {
+    builder.setTitle(R.string.age_verification_title);
+    builder.setMessage(R.string.age_verification_question);
 
-      final AlertDialog.Builder alert = new AlertDialog.Builder(CatalogFeedActivity.this);
+      // Under 13
+      builder.setNeutralButton(R.string.age_verification_13_younger, (dialog, which) -> {
+        Simplified.getSharedPrefs().putBoolean("age13", false);
+        CatalogFeedActivity.this.reloadCatalogActivity(true);
+      });
 
-      // Setting Dialog Title
-      alert.setTitle(R.string.age_verification_title);
+      // 13 or Over
+      builder.setPositiveButton(R.string.age_verification_13_older, (dialog, which) -> {
+        Simplified.getSharedPrefs().putBoolean("age13", true);
+        CatalogFeedActivity.this.reloadCatalogActivity(false);
+      });
 
-      // Setting Dialog Message
-      alert.setMessage(R.string.age_verification_question);
-
-      // On pressing the under 13 button.
-      alert.setNeutralButton(R.string.age_verification_13_younger, new DialogInterface.OnClickListener() {
-          public void onClick(final DialogInterface dialog, final int which) {
-            Simplified.getSharedPrefs().putBoolean("age13", false);
-            //reload catalog
-            CatalogFeedActivity.this.reloadCatalogActivity(true);
-          }
-        }
-      );
-
-      // On pressing the 13 and over button
-      alert.setPositiveButton(R.string.age_verification_13_older, new DialogInterface.OnClickListener() {
-          public void onClick(final DialogInterface dialog, final int which) {
-            Simplified.getSharedPrefs().putBoolean("age13", true);
-            //reload catalog
-            CatalogFeedActivity.this.reloadCatalogActivity(false);
-          }
-        }
-      );
-
-      // Showing Alert Message
-      alert.show();
+    if(!this.isFinishing()) {
+      AlertDialog alert = builder.show();
+      final int resID = ThemeMatcher.Companion.color(Simplified.getCurrentAccount().getMainColor());
+      final int mainTextColor = ContextCompat.getColor(this, resID);
+      alert.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(mainTextColor);
+      alert.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(mainTextColor);
     }
   }
 
@@ -1043,11 +1072,6 @@ public abstract class CatalogFeedActivity extends CatalogActivity implements
 
     content_area.addView(layout);
     content_area.requestLayout();
-
-    if (!this.isFinishing()) {
-      this.showAgeCheckAlert();
-    }
-
   }
 
   private void onFeedWithoutGroupsNonEmptyUI(

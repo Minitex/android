@@ -6,8 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
-import android.graphics.Color;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.DrawerLayout.DrawerListener;
@@ -245,47 +245,8 @@ public abstract class SimplifiedActivity extends Activity
   @Override protected void onCreate(
     final @Nullable Bundle state)
   {
-
-    final int id = Simplified.getCurrentAccount().getId();
-    if (id == 0) {
-      setTheme(R.style.SimplifiedTheme_NYPL);
-    }
-    else if (id == 1) {
-      setTheme(R.style.SimplifiedTheme_BPL);
-    }
-    else if (id == 7) {
-      setTheme(R.style.SimplifiedTheme_ACL);
-    }
-    else if (id == 8) {
-      setTheme(R.style.SimplifiedTheme_HCLS);
-    }
-    else if (id == 9) {
-      setTheme(R.style.SimplifiedTheme_MCPL);
-    }
-    else if (id == 10) {
-      setTheme(R.style.SimplifiedTheme_FCPL);
-    }
-    else if (id == 11) {
-      setTheme(R.style.SimplifiedTheme_AACPL);
-    }
-    else if (id == 12) {
-      setTheme(R.style.SimplifiedTheme_BGC);
-    }
-    else if (id == 13) {
-      setTheme(R.style.SimplifiedTheme_SMCL);
-    }
-    else if (id == 14) {
-      setTheme(R.style.SimplifiedTheme_CL);
-    }
-    else if (id == 15) {
-      setTheme(R.style.SimplifiedTheme_CCPL);
-    }
-    else if (id == 16) {
-      setTheme(R.style.SimplifiedTheme_CCL);
-    }
-    else {
-      setTheme(R.style.SimplifiedTheme);
-    }
+    final String accountColor = Simplified.getCurrentAccount().getMainColor();
+    setTheme(ThemeMatcher.Companion.actionBarStyle(accountColor));
 
     super.onCreate(state);
 
@@ -403,46 +364,31 @@ public abstract class SimplifiedActivity extends Activity
 
             final Account account = (Account) object;
             final TextView tv =
-              NullCheck.notNull((TextView) v.findViewById(android.R.id.text1));
+              NullCheck.notNull(v.findViewById(android.R.id.text1));
             tv.setText(account.getName());
 
             final ImageView icon_view =
-              NullCheck.notNull((ImageView) v.findViewById(R.id.cellIcon));
-            if (account.getId() == 0) {
-              icon_view.setImageResource(R.drawable.account_logo_nypl);
-            } else if (account.getId() == 1) {
-              icon_view.setImageResource(R.drawable.account_logo_bpl);
-            } else if (account.getId() == 2) {
-              icon_view.setImageResource(R.drawable.account_logo_instant);
-            } else if (account.getId() == 7) {
-              icon_view.setImageResource(R.drawable.account_logo_alameda);
-            } else if (account.getId() == 8) {
-              icon_view.setImageResource(R.drawable.account_logo_hcls);
-            } else if (account.getId() == 9) {
-              icon_view.setImageResource(R.drawable.account_logo_mcpl);
-            } else if (account.getId() == 10) {
-              icon_view.setImageResource(R.drawable.account_logo_fcpl);
-            } else if (account.getId() == 11) {
-              icon_view.setImageResource(R.drawable.account_logo_anne_arundel);
-            } else if (account.getId() == 12) {
-              icon_view.setImageResource(R.drawable.account_logo_bgc);
-            } else if (account.getId() == 13) {
-              icon_view.setImageResource(R.drawable.account_logo_smcl);
-            } else if (account.getId() == 14) {
-              icon_view.setImageResource(R.drawable.account_logo_cl);
-            } else if (account.getId() == 15) {
-              icon_view.setImageResource(R.drawable.account_logo_ccpl);
-            } else if (account.getId() == 16) {
-              icon_view.setImageResource(R.drawable.account_logo_ccl);
+              NullCheck.notNull(v.findViewById(R.id.cellIcon));
+
+            final String resource_path = "drawable/" + account.getLowerCaseLogo();
+            final int resource_id = this.getContext().getResources().getIdentifier(
+                resource_path,
+                null,
+                this.getContext().getPackageName());
+
+            if (resource_id != 0) {
+              icon_view.setImageResource(resource_id);
+            } else {
+              icon_view.setImageResource(R.drawable.librarylogomagic);
             }
+
           } else {
             final ImageView icon_view =
-              NullCheck.notNull((ImageView) v.findViewById(R.id.cellIcon));
+                NullCheck.notNull(v.findViewById(R.id.cellIcon));
             icon_view.setImageResource(R.drawable.menu_icon_settings);
             final TextView tv =
-              NullCheck.notNull((TextView) v.findViewById(android.R.id.text1));
+                NullCheck.notNull(v.findViewById(android.R.id.text1));
             tv.setText(R.string.settings_manage_accounts);
-
           }
           return v;
         }
@@ -480,37 +426,23 @@ public abstract class SimplifiedActivity extends Activity
             v.setBackgroundResource(R.drawable.textview_underline);
             final Prefs prefs = Simplified.getSharedPrefs();
             final Account account = new AccountsRegistry(SimplifiedActivity.this).getAccount(prefs.getInt("current_account"));
+            final int resID = ThemeMatcher.Companion.color(account.getMainColor());
+            final int mainColor = ContextCompat.getColor(this.getContext(), resID);
             tv.setText(account.getName());
-            tv.setTextColor(Color.parseColor(Simplified.getCurrentAccount().getMainColor()));
+            tv.setTextColor(mainColor);
 
-            if (account.getId() == 0) {
-              icon_view.setImageResource(R.drawable.account_logo_nypl);
-            } else if (account.getId() == 1) {
-              icon_view.setImageResource(R.drawable.account_logo_bpl);
-            } else if (account.getId() == 2) {
-              icon_view.setImageResource(R.drawable.account_logo_instant);
-            } else if (account.getId() == 7) {
-              icon_view.setImageResource(R.drawable.account_logo_alameda);
-            } else if (account.getId() == 8) {
-              icon_view.setImageResource(R.drawable.account_logo_hcls);
-            } else if (account.getId() == 9) {
-              icon_view.setImageResource(R.drawable.account_logo_mcpl);
-            } else if (account.getId() == 10) {
-              icon_view.setImageResource(R.drawable.account_logo_fcpl);
-            } else if (account.getId() == 11) {
-              icon_view.setImageResource(R.drawable.account_logo_anne_arundel);
-            } else if (account.getId() == 12) {
-              icon_view.setImageResource(R.drawable.account_logo_bgc);
-            } else if (account.getId() == 13) {
-              icon_view.setImageResource(R.drawable.account_logo_smcl);
-            } else if (account.getId() == 14) {
-              icon_view.setImageResource(R.drawable.account_logo_cl);
-            } else if (account.getId() == 15) {
-              icon_view.setImageResource(R.drawable.account_logo_ccpl);
-            } else if (account.getId() == 16) {
-              icon_view.setImageResource(R.drawable.account_logo_ccl);
+            final String resource_path = "drawable/" + account.getLowerCaseLogo();
+            final int resource_id = this.getContext().getResources().getIdentifier(
+                resource_path,
+                null,
+                this.getContext().getPackageName());
+
+            if (resource_id != 0) {
+              icon_view.setImageResource(resource_id);
+            } else {
+              icon_view.setImageResource(R.drawable.librarylogomagic);
             }
-      
+
           } else {
             tv.setText(part.getPartName(rr));
             if (dl.getCheckedItemPosition() == position) {

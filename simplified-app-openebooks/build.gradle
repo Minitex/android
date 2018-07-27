@@ -1,8 +1,8 @@
 apply plugin: 'com.android.application'
 
 android {
-  compileSdkVersion 25
-  buildToolsVersion "26.0.0"
+  compileSdkVersion 27
+  buildToolsVersion "27.0.3"
   packagingOptions {
     exclude 'META-INF/LICENSE'
   }
@@ -11,5 +11,5 @@ android {
 description = 'simplified-app-openebooks'
 
 dependencies {
-  compile project(':simplified-app-shared')
+  implementation project(':simplified-app-shared')
 }

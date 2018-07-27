@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -25,6 +26,7 @@ import com.io7m.jfunctional.Some;
 import com.io7m.jfunctional.None;
 import com.io7m.jfunctional.Unit;
 import com.io7m.jnull.NullCheck;
+import com.io7m.jnull.NullCheckException;
 import com.io7m.jnull.Nullable;
 import com.io7m.junreachable.UnreachableCodeException;
 
@@ -33,6 +35,7 @@ import org.nypl.simplified.app.LoginActivity;
 import org.nypl.simplified.app.R;
 import org.nypl.simplified.app.Simplified;
 import org.nypl.simplified.app.SimplifiedCatalogAppServicesType;
+import org.nypl.simplified.app.ThemeMatcher;
 import org.nypl.simplified.app.utilities.UIThread;
 import org.nypl.simplified.assertions.Assertions;
 import org.nypl.simplified.books.core.BookDatabaseEntrySnapshot;
@@ -108,7 +111,8 @@ public final class CatalogBookDetailView implements Observer,
   private final ViewGroup                      book_download;
   private final LinearLayout                   book_download_buttons;
   private final Button                         book_download_report_button;
-  private final Button                         related_books_button;
+  private final ViewGroup related_layout;
+  private final Button related_books_button;
   private final TextView                       book_download_text;
   private final ViewGroup                      book_downloading;
   private final Button                         book_downloading_cancel;
@@ -247,38 +251,33 @@ public final class CatalogBookDetailView implements Observer,
     final TextView header_meta = NullCheck.notNull(
       (TextView) summary.findViewById(R.id.book_header_meta));
 
-    final Button read_more_button = NullCheck.notNull(
-      (Button) summary.findViewById(R.id.book_summary_read_more_button));
+    final int resID = ThemeMatcher.Companion.color(Simplified.getCurrentAccount().getMainColor());
+    final int mainTextColor = ContextCompat.getColor(this.activity.getBaseContext(), resID);
 
-    read_more_button.setOnClickListener(new View.OnClickListener() {
-      public void onClick(final View v) {
-        CatalogBookDetailView.configureSummaryWebViewHeight(summary_text);
-        read_more_button.setVisibility(View.INVISIBLE);
-      }
+    final Button read_more_button = NullCheck.notNull(
+      summary.findViewById(R.id.book_summary_read_more_button));
+    read_more_button.setTextColor(mainTextColor);
+
+    read_more_button.setOnClickListener(view -> {
+      CatalogBookDetailView.configureSummaryWebViewHeight(summary_text);
+      read_more_button.setVisibility(View.INVISIBLE);
     });
 
-    final ViewGroup related_layout = NullCheck.notNull(
-      (ViewGroup) layout.findViewById(R.id.book_related_layout));
-    this.related_books_button = NullCheck.notNull(
-            (Button) related_layout.findViewById(R.id.related_books_button));
-    this.book_download_report_button = NullCheck.notNull(
-            (Button) related_layout.findViewById(R.id.book_dialog_report_button));
+    this.related_layout = layout.findViewById(R.id.book_related_layout);
+    this.related_books_button = this.related_layout.findViewById(R.id.related_books_button);
+    this.related_books_button.setTextColor(mainTextColor);
+    this.book_download_report_button = layout.findViewById(R.id.book_dialog_report_button);
+    this.book_download_report_button.setTextColor(mainTextColor);
 
-    /**
-     * Assuming a roughly fixed height for cover images, assume a 4:3 aspect
-     * ratio and set the width of the cover layout.
-     */
-
+    /* Assuming a roughly fixed height for cover images, assume a 4:3 aspect
+     * ratio and set the width of the cover layout. */
     final int cover_height = header_cover.getLayoutParams().height;
     final int cover_width = (int) (((double) cover_height / 4.0) * 3.0);
     final LinearLayout.LayoutParams cp =
       new LinearLayout.LayoutParams(cover_width, LayoutParams.WRAP_CONTENT);
     header_left.setLayoutParams(cp);
 
-    /**
-     * Configure detail texts.
-     */
-
+    /* Configure detail texts. */
     final OPDSAcquisitionFeedEntry eo = in_entry.getFeedEntry();
     CatalogBookDetailView.configureSummarySectionTitle(summary_section_title);
 
@@ -297,7 +296,8 @@ public final class CatalogBookDetailView implements Observer,
 
     cover_provider.loadCoverInto(
       in_entry, header_cover, cover_width, cover_height);
-  }
+  }//constructor
+
 
   private static void configureButtonsHeight(
     final Resources rr,
@@ -985,6 +985,7 @@ public final class CatalogBookDetailView implements Observer,
     return Unit.unit();
   }
 
+
   private void onStatus(
     final FeedEntryOPDS e,
     final OptionType<BookStatusType> status_opt)
@@ -1053,12 +1054,18 @@ public final class CatalogBookDetailView implements Observer,
 
     if (related_book_link.isSome()) {
       final Button books_button = CatalogBookDetailView.this.related_books_button;
-      books_button.setOnClickListener(related_book_listener);
+      if (books_button != null) {
+        // set the "Related Books" section visibility to display, and set the button to listen for user actions
+        CatalogBookDetailView.this.related_layout.setVisibility(View.VISIBLE);
+
+        books_button.setOnClickListener(related_book_listener);
+      }
     }
 
     final Button report_button = this.book_download_report_button;
     report_button.setOnClickListener(new CatalogBookReport(this.activity, e));
-  }
+  }//onStatus
+
 
   @Override public void update(
     final @Nullable Observable observable,

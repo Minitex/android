@@ -3,12 +3,12 @@
   xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:tools="http://schemas.android.com/tools"
   package="org.nypl.simplified.simplye"
-  android:versionCode="1129"
-  android:versionName="2.0.2">
+  android:versionCode="1162"
+  android:versionName="2.2.1">
 
   <uses-sdk
     android:minSdkVersion="19"
-    android:targetSdkVersion="25"/>
+    android:targetSdkVersion="27"/>
 
   <uses-permission android:name="android.permission.INTERNET"/>
   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
@@ -26,7 +26,7 @@
     android:label="@string/feature_app_name"
     android:contentDescription="@string/feature_app_name"
     android:largeHeap="true"
-    android:theme="@style/SimplifiedTheme">
+    android:theme="@style/SimplifiedTheme_ActionBar">
 
     <!-- Main entry point for the application. -->
     <activity
@@ -34,7 +34,7 @@
       android:configChanges="orientation|screenSize"
       android:label="@string/feature_app_name"
       android:contentDescription="@string/feature_app_name"
-      android:theme="@style/SimplifiedThemeNoActionBar"
+      android:theme="@style/SimplifiedTheme_NoActionBar"
 >
       <intent-filter>
         <action android:name="android.intent.action.MAIN"/>
@@ -60,7 +60,7 @@
     <activity
       android:name="org.nypl.simplified.app.LoginActivity"
       android:configChanges="orientation|screenSize"
-      android:theme="@style/SimplifiedThemeNoActionBar"
+      android:theme="@style/SimplifiedTheme_NoActionBar"
       android:exported="false">
     </activity>
     <activity
@@ -151,15 +151,15 @@
     <activity
       android:name="org.nypl.simplified.app.reader.ReaderActivity"
       android:configChanges="orientation|screenSize"
-      android:theme="@style/SimplifiedThemeNoActionBar"
+      android:theme="@style/SimplifiedTheme_NoActionBar"
       android:label="@string/reader"
       android:contentDescription="@string/reader"
       >
     </activity>
     <activity
       android:name="org.nypl.simplified.app.reader.ReaderTOCActivity"
-      android:theme="@style/SimplifiedThemeNoActionBar"
       android:configChanges="orientation|screenSize"
+      android:theme="@style/Theme.AppCompat.Light"
       android:label="@string/reader_toc"
       android:contentDescription="@string/reader_toc"
       >
