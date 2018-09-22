@@ -23,7 +23,7 @@ public class ReservedBookAvailableService extends JobService {
         if(bookIsAvailable) {
             postBookIsAvailableNotification();
         }
-        return true;
+        return false; //this indicates that the scheduled job is done, true will burn battery if not handled correctly
     }
 
     @Override
