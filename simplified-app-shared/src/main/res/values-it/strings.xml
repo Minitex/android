@@ -181,8 +181,7 @@
   <string name="reader_accessibility_settings_close">Chiudi impostazioni del lettore</string>
   <string name="reader_settings_close">Chiudere</string>
 
-
-
-
+  <!-- Notifications -->
+  <string name="book_available_alarm_msg">Prenota XYZ è ora disponibile per il checkout</string>
 
 </resources>

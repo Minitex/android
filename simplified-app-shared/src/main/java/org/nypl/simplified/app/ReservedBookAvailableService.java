@@ -1,16 +1,17 @@
 package org.nypl.simplified.app;
 
-import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.job.JobParameters;
 import android.app.job.JobService;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Build;
 import android.support.v4.app.NotificationCompat;
-
-import org.nypl.simplified.app.LoginActivity;
+import android.support.v4.content.ContextCompat;
+import android.util.Log;
 
 public class ReservedBookAvailableService extends JobService {
 
@@ -32,23 +33,47 @@ public class ReservedBookAvailableService extends JobService {
 
     private void postBookIsAvailableNotification() {
 
-        //define resource R.string.book_available_id_channel for android ) and above
-        //this.getResources().getString(R.string.book_available_id_channel)
+        String idChannel = "NYPL_BOOK_AVAILABLE_CHANNEL_ID";
+        Intent mainIntent;
 
-        //implement >=O (Oreo) and < O (Oreo) logic.  >= O (Oreo) uses channels, previous versions do not.
-        //this will solve the deprecation below and make it work on >= O (Oreo)
-        NotificationCompat.Builder builder =
-                new NotificationCompat.Builder(this)
-                        .setContentTitle("Your reserved book is now available!")
-                        .setContentText("BookXYZ is now available for checkout.");
+        mainIntent = new Intent(this, LoginActivity.class);
 
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, mainIntent, 0);
 
-        Intent notificationIntent = new Intent(this, LoginActivity.class);
-        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT);
-        builder.setContentIntent(contentIntent);
-        NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        manager.notify(0, builder.build());
+        NotificationManager mNotificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
+
+        NotificationChannel mChannel = null;
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, null);
+
+        //TODO: .setSmallIcon(getNotificationIcon()) get an icon for notification
+        builder.setContentTitle(this.getString(R.string.app_name))
+                .setContentIntent(pendingIntent)
+                .setContentText(this.getString(R.string.book_available_alarm_msg));
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            int importance = NotificationManager.IMPORTANCE_HIGH;
+            mChannel = new NotificationChannel(idChannel, this.getString(R.string.app_name), importance);
+            // Configure the notification channel.
+            mChannel.setDescription(this.getString(R.string.book_available_alarm_msg));
+            mChannel.enableLights(true);
+            mChannel.setLightColor(Color.RED);
+            mChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
+            mNotificationManager.createNotificationChannel(mChannel);
+        } else {
+            builder.setContentTitle(this.getString(R.string.app_name))
+                    .setPriority(NotificationCompat.PRIORITY_HIGH)
+                    .setColor(ContextCompat.getColor(this, R.color.app_primary_color))
+                    .setVibrate(new long[]{100, 250})
+                    .setLights(Color.YELLOW, 500, 5000)
+                    .setAutoCancel(true);
+        }
+
+        try {
+            mNotificationManager.notify(1, builder.build());
+        } catch(RuntimeException re) {
+            Log.d("Notification", "Filed to send reserved book available notification: " + re.getMessage());
+        }
 
     }
 

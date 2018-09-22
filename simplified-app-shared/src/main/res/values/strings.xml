@@ -283,4 +283,7 @@
   <string name="advanced_sync_error_message">There was an error while contacting the server. Please try again later with a strong internet connection.</string>
   <string name="advanced_sync_message">"Selecting \"Delete\" will remove all bookmarks from the server for this library account."</string>
 
+  <!-- Notifications -->
+  <string name="book_available_alarm_msg">Book XYZ is now available for checkout</string>
+
 </resources>

@@ -182,7 +182,8 @@
   <string name="reader_settings_close">Cerrar</string>
 
 
-
+  <!-- Notifications -->
+  <string name="book_available_alarm_msg">El libro XYZ ya está disponible para pagar</string>
 
 
 </resources>
