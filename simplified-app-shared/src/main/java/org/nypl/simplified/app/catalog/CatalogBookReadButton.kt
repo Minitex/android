@@ -17,6 +17,7 @@ import org.nypl.simplified.app.ThemeMatcher
 import org.nypl.simplified.books.core.BookDatabaseEntryFormatSnapshot
 import org.nypl.simplified.books.core.BookDatabaseEntryFormatSnapshot.BookDatabaseEntryFormatSnapshotAudioBook
 import org.nypl.simplified.books.core.BookDatabaseEntryFormatSnapshot.BookDatabaseEntryFormatSnapshotEPUB
+import org.nypl.simplified.books.core.BookDatabaseEntryFormatSnapshot.BookDatabaseEntryFormatSnapshotPDF
 import org.nypl.simplified.books.core.BookDatabaseEntrySnapshot
 import org.nypl.simplified.books.core.BookID
 import org.nypl.simplified.books.core.BooksType
@@ -104,6 +105,7 @@ class CatalogBookReadButton(
           this.textView.text = resources.getString(catalog_book_listen)
           this.textView.contentDescription = resources.getString(catalog_accessibility_book_listen)
         }
+        is BookDatabaseEntryFormatSnapshotPDF -> Unit
       }
     } else {
       throw UnreachableCodeException()

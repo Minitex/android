@@ -17,6 +17,7 @@ import org.nypl.simplified.books.core.AccountGetCachedCredentialsListenerType
 import org.nypl.simplified.books.core.BookDatabaseEntryFormatSnapshot
 import org.nypl.simplified.books.core.BookDatabaseEntryFormatSnapshot.BookDatabaseEntryFormatSnapshotAudioBook
 import org.nypl.simplified.books.core.BookDatabaseEntryFormatSnapshot.BookDatabaseEntryFormatSnapshotEPUB
+import org.nypl.simplified.books.core.BookDatabaseEntryFormatSnapshot.BookDatabaseEntryFormatSnapshotPDF
 import org.nypl.simplified.books.core.BookDatabaseEntrySnapshot
 import org.nypl.simplified.books.core.BookID
 import org.nypl.simplified.books.core.FeedEntryOPDS
@@ -66,6 +67,7 @@ class CatalogBookRead(
         return when (format) {
           is BookDatabaseEntryFormatSnapshotEPUB -> launchEPUBReader(format)
           is BookDatabaseEntryFormatSnapshotAudioBook -> launchAudioBookPlayer(format)
+          is BookDatabaseEntryFormatSnapshotPDF -> launchPDFReader(format)
         }
       }
     } else {
@@ -103,6 +105,20 @@ class CatalogBookRead(
         LOG,
         "Bug: book claimed to be downloaded but no book file exists in storage",
         null)
+    }
+  }
+
+  private fun launchPDFReader(format: BookDatabaseEntryFormatSnapshotPDF) {
+    val bookOpt = format.book
+    if (bookOpt is Some<File>) {
+      throw NotImplementedError("PDF Reader is not yet implemented")
+      ReaderActivity.startActivity(this.activity, this.id, bookOpt.get(), this.entry)
+    } else {
+      ErrorDialogUtilities.showError(
+              this.activity,
+              LOG,
+              "Bug: pdf claimed to be downloaded but no book file exists in storage",
+              null)
     }
   }
 

@@ -12,7 +12,9 @@ import org.nypl.drm.core.AdobeAdeptLoanReturnListenerType
 import org.nypl.drm.core.AdobeUserID
 import org.nypl.simplified.books.core.BookDatabaseEntryFormatHandle.BookDatabaseEntryFormatHandleAudioBook
 import org.nypl.simplified.books.core.BookDatabaseEntryFormatHandle.BookDatabaseEntryFormatHandleEPUB
+import org.nypl.simplified.books.core.BookDatabaseEntryFormatHandle.BookDatabaseEntryFormatHandlePDF
 import org.nypl.simplified.books.core.BookDatabaseEntryFormatSnapshot.BookDatabaseEntryFormatSnapshotEPUB
+import org.nypl.simplified.books.core.BookDatabaseEntryFormatSnapshot.BookDatabaseEntryFormatSnapshotPDF
 import org.nypl.simplified.opds.core.OPDSAcquisitionFeedEntry
 import org.nypl.simplified.opds.core.OPDSAvailabilityHeld
 import org.nypl.simplified.opds.core.OPDSAvailabilityHeldReady
@@ -199,10 +201,17 @@ internal class BooksControllerRevokeBookTask(
       when (formatHandle) {
         is BookDatabaseEntryFormatHandleEPUB -> revokeLoanedEPUB(formatHandle, revokeURI)
         is BookDatabaseEntryFormatHandleAudioBook -> revokeLoanedAudioBook(formatHandle, revokeURI)
+        is BookDatabaseEntryFormatHandlePDF -> revokeLoanedPDF(formatHandle, revokeURI)
       }
     } else {
       throw UnreachableCodeException()
     }
+  }
+
+  private fun revokeLoanedPDF(
+          formatHandle: BookDatabaseEntryFormatHandlePDF,
+          revokeURI: URI): Unit {
+    return this.revokeUsingOnlyURI(revokeURI, RevokeType.LOAN)
   }
 
   private fun revokeLoanedAudioBook(

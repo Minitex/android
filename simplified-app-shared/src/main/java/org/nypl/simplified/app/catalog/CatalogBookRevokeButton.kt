@@ -9,6 +9,7 @@ import org.nypl.simplified.app.Simplified
 import org.nypl.simplified.app.ThemeMatcher
 import org.nypl.simplified.books.core.BookDatabaseEntryFormatSnapshot.BookDatabaseEntryFormatSnapshotAudioBook
 import org.nypl.simplified.books.core.BookDatabaseEntryFormatSnapshot.BookDatabaseEntryFormatSnapshotEPUB
+import org.nypl.simplified.books.core.BookDatabaseEntryFormatSnapshot.BookDatabaseEntryFormatSnapshotPDF
 import org.nypl.simplified.books.core.BookDatabaseEntrySnapshot
 import org.nypl.simplified.books.core.BookID
 import org.nypl.simplified.books.core.BooksType
@@ -83,6 +84,7 @@ class CatalogBookRevokeButton(
         return when (format) {
           is BookDatabaseEntryFormatSnapshotEPUB -> format.adobeRights.isNone
           is BookDatabaseEntryFormatSnapshotAudioBook -> true
+          is BookDatabaseEntryFormatSnapshotPDF -> true
         }
       }
     }

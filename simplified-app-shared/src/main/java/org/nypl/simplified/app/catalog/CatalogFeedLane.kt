@@ -27,6 +27,7 @@ import org.nypl.simplified.app.utilities.UIThread
 import org.nypl.simplified.books.core.BookFormats
 import org.nypl.simplified.books.core.BookFormats.BookFormatDefinition.BOOK_FORMAT_AUDIO
 import org.nypl.simplified.books.core.BookFormats.BookFormatDefinition.BOOK_FORMAT_EPUB
+import org.nypl.simplified.books.core.BookFormats.BookFormatDefinition.BOOK_FORMAT_PDF
 import org.nypl.simplified.books.core.FeedEntryCorrupt
 import org.nypl.simplified.books.core.FeedEntryMatcherType
 import org.nypl.simplified.books.core.FeedEntryOPDS

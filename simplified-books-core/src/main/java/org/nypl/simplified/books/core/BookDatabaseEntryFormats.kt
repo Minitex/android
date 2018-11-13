@@ -6,6 +6,7 @@ import org.nypl.audiobook.android.api.PlayerPosition
 import org.nypl.drm.core.AdobeAdeptLoan
 import org.nypl.simplified.books.core.BookDatabaseEntryFormatSnapshot.BookDatabaseEntryFormatSnapshotAudioBook
 import org.nypl.simplified.books.core.BookDatabaseEntryFormatSnapshot.BookDatabaseEntryFormatSnapshotEPUB
+import org.nypl.simplified.books.core.BookDatabaseEntryFormatSnapshot.BookDatabaseEntryFormatSnapshotPDF
 import java.io.File
 import java.io.IOException
 import java.net.URI
@@ -120,6 +121,39 @@ sealed class BookDatabaseEntryFormatHandle {
     abstract fun clearPlayerPosition()
   }
 
+  /**
+   * The interface exposed by the PDF format in database entries.
+   */
+
+  abstract class BookDatabaseEntryFormatHandlePDF : BookDatabaseEntryFormatHandle() {
+
+    /**
+     * Copy the given PDF file into the directory as the book data.
+     *
+     * @param file The file to be copied
+     *
+     * @return A snapshot of the new database state
+     *
+     * @throws IOException On I/O errors or lock acquisition failures
+     */
+
+    @Throws(IOException::class)
+    abstract fun copyInBook(file: File): BookDatabaseEntrySnapshot
+
+    /**
+     * Destroy the book data, if it exists.
+     *
+     * @return A snapshot of the new database state
+     *
+     * @throws IOException On I/O errors or lock acquisition failures
+     */
+
+    @Throws(IOException::class)
+    abstract fun deleteBookData(): BookDatabaseEntrySnapshot
+
+    abstract override fun snapshot(): BookDatabaseEntryFormatSnapshotPDF
+  }
+
 }
 
 /**
@@ -142,6 +176,21 @@ sealed class BookDatabaseEntryFormatSnapshot {
 
     /**
      * The EPUB file, if one has been downloaded
+     */
+
+    val book: OptionType<File>) : BookDatabaseEntryFormatSnapshot() {
+
+    override val isDownloaded: Boolean
+      get() = this.book.isSome
+  }
+
+  /**
+   * A snapshot of a PDF
+   */
+
+  data class BookDatabaseEntryFormatSnapshotPDF(
+    /**
+     * The PDF file, if one has been downloaded
      */
 
     val book: OptionType<File>) : BookDatabaseEntryFormatSnapshot() {

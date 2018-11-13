@@ -24,8 +24,10 @@ class BookFormats private constructor() {
       makeAudioBookMimeTypes()
     private val EPUB_MIME_TYPES =
       makeEPUBMimeTypes()
+    private val PDF_MIME_TYPES =
+            makePDFMimeTypes()
     private val SUPPORTED_BOOK_MIME_TYPES =
-      makeSupportedBookMimeTypes(EPUB_MIME_TYPES, AUDIO_BOOK_MIME_TYPES)
+      makeSupportedBookMimeTypes(EPUB_MIME_TYPES, AUDIO_BOOK_MIME_TYPES, PDF_MIME_TYPES)
 
     private fun makeEPUBMimeTypes(): Set<String> {
       val types = HashSet<String>(1)
@@ -41,12 +43,20 @@ class BookFormats private constructor() {
       return Collections.unmodifiableSet(types)
     }
 
+    private fun makePDFMimeTypes(): Set<String> {
+      val types = HashSet<String>(1)
+      types.add("application/pdf")
+      return Collections.unmodifiableSet(types)
+    }
+
     private fun makeSupportedBookMimeTypes(
       epub: Set<String>,
-      audioBook: Set<String>): Set<String> {
+      audioBook: Set<String>,
+      pdf: Set<String>): Set<String> {
       val types = HashSet<String>(epub.size)
       types.addAll(epub)
       types.addAll(audioBook)
+      types.addAll(pdf)
       return Collections.unmodifiableSet(types)
     }
 
@@ -72,6 +82,14 @@ class BookFormats private constructor() {
 
     fun audioBookMimeTypes(): Set<String> {
       return AUDIO_BOOK_MIME_TYPES
+    }
+
+    /**
+     * @return The set of MIME types for PDFs
+     */
+
+    fun pdfMimeTypes() : Set<String> {
+      return PDF_MIME_TYPES
     }
 
     private val formats = BookFormatDefinition.values()
@@ -117,6 +135,16 @@ class BookFormats private constructor() {
     BOOK_FORMAT_AUDIO {
       override fun supportedContentTypes(): Set<String> {
         return audioBookMimeTypes()
+      }
+    },
+
+    /**
+     * The PDF format
+     */
+
+    BOOK_FORMAT_PDF {
+      override fun supportedContentTypes(): Set<String> {
+        return pdfMimeTypes()
       }
     };
 

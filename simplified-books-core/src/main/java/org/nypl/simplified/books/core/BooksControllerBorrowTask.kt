@@ -18,6 +18,7 @@ import org.nypl.drm.core.DRMUnsupportedException
 import org.nypl.simplified.assertions.Assertions
 import org.nypl.simplified.books.core.BookDatabaseEntryFormatHandle.BookDatabaseEntryFormatHandleAudioBook
 import org.nypl.simplified.books.core.BookDatabaseEntryFormatHandle.BookDatabaseEntryFormatHandleEPUB
+import org.nypl.simplified.books.core.BookDatabaseEntryFormatHandle.BookDatabaseEntryFormatHandlePDF
 import org.nypl.simplified.downloader.core.DownloadListenerType
 import org.nypl.simplified.downloader.core.DownloadType
 import org.nypl.simplified.downloader.core.DownloaderType
@@ -742,6 +743,10 @@ internal class BooksControllerBorrowTask(
         }
         is BookDatabaseEntryFormatHandleAudioBook -> {
           format.copyInManifestAndURI(file, this.fulfillURI)
+          updateStatus()
+        }
+        is BookDatabaseEntryFormatHandlePDF -> {
+          format.copyInBook(file)
           updateStatus()
         }
       }

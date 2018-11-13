@@ -23,12 +23,15 @@ import org.nypl.drm.core.AdobeAdeptLoan
 import org.nypl.drm.core.AdobeLoanID
 import org.nypl.simplified.books.core.BookDatabaseEntryFormatHandle.BookDatabaseEntryFormatHandleAudioBook
 import org.nypl.simplified.books.core.BookDatabaseEntryFormatHandle.BookDatabaseEntryFormatHandleEPUB
+import org.nypl.simplified.books.core.BookDatabaseEntryFormatHandle.BookDatabaseEntryFormatHandlePDF
 import org.nypl.simplified.books.core.BookDatabaseEntryFormatSnapshot.AudioBookManifestReference
 import org.nypl.simplified.books.core.BookDatabaseEntryFormatSnapshot.BookDatabaseEntryFormatSnapshotAudioBook
 import org.nypl.simplified.books.core.BookDatabaseEntryFormatSnapshot.BookDatabaseEntryFormatSnapshotEPUB
+import org.nypl.simplified.books.core.BookDatabaseEntryFormatSnapshot.BookDatabaseEntryFormatSnapshotPDF
 import org.nypl.simplified.books.core.BookFormats.BookFormatDefinition
 import org.nypl.simplified.books.core.BookFormats.BookFormatDefinition.BOOK_FORMAT_AUDIO
 import org.nypl.simplified.books.core.BookFormats.BookFormatDefinition.BOOK_FORMAT_EPUB
+import org.nypl.simplified.books.core.BookFormats.BookFormatDefinition.BOOK_FORMAT_PDF
 import org.nypl.simplified.books.core.BookFormats.BookFormatDefinition.values
 import org.nypl.simplified.files.DirectoryUtilities
 import org.nypl.simplified.files.FileUtilities
@@ -122,6 +125,13 @@ class BookDatabase private constructor(
               classType = DBEntryFormatHandleAudioBook::class.java,
               supportedContentTypes = format.supportedContentTypes(),
               constructor = { bookID, format, entry -> DBEntryFormatHandleAudioBook(bookID, format, entry) })
+          }
+          BOOK_FORMAT_PDF -> {
+            DatabaseBookFormatHandleConstructor(
+              classType = DBEntryFormatHandlePDF::class.java,
+              supportedContentTypes = format.supportedContentTypes(),
+              constructor = { format, entry -> DBEntryFormatHandlePDF(format, entry)}
+            )
           }
         }
     }
@@ -578,6 +588,62 @@ class BookDatabase private constructor(
   private class NullDownloadProvider : PlayerDownloadProviderType {
     override fun download(request: PlayerDownloadRequest): ListenableFuture<Unit> {
       return Futures.immediateFailedFuture(UnsupportedOperationException())
+    }
+  }
+
+  /**
+   * Operations on PDF formats in database entries.
+   */
+
+  private class DBEntryFormatHandlePDF(
+          override val formatDefinition: BookFormatDefinition,
+          private val owner: BookDatabaseEntry) : BookDatabaseEntryFormatHandlePDF() {
+
+//    private val fileAdobeRightsTmp: File =
+//            File(this.owner.directory, "rights_adobe.xml.tmp")
+//    private val fileAdobeRights: File =
+//            File(this.owner.directory, "rights_adobe.xml")
+//    private val fileAdobeMeta: File =
+//            File(this.owner.directory, "meta_adobe.json")
+//    private val fileAdobeMetaTmp: File =
+//            File(this.owner.directory, "meta_adobe.json.tmp")
+    private val fileBook: File =
+            File(this.owner.directory, "book.pdf")
+
+    @Throws(IOException::class)
+    private fun lockedCopyInBook(file: File) {
+      FileUtilities.fileCopy(file, this.fileBook)
+    }
+
+    private fun lockedBookGet(): OptionType<File> {
+      return if (this.fileBook.isFile) {
+        Option.some(this.fileBook)
+      } else Option.none()
+    }
+
+    @Throws(IOException::class)
+    private fun lockedDestroyBookData() {
+      FileUtilities.fileDelete(this.fileBook)
+    }
+
+    override fun copyInBook(file: File): BookDatabaseEntrySnapshot {
+      return this.owner.entryLock.withLock {
+        this.lockedCopyInBook(file)
+        this.owner.lockedUpdateSnapshot()
+      }
+    }
+
+    override fun deleteBookData(): BookDatabaseEntrySnapshot {
+      return this.owner.entryLock.withLock {
+        this.lockedDestroyBookData()
+        this.owner.lockedUpdateSnapshot()
+      }
+    }
+
+    override fun snapshot(): BookDatabaseEntryFormatSnapshotPDF {
+      return this.owner.entryLock.withLock {
+        BookDatabaseEntryFormatSnapshotPDF(book = this.lockedBookGet())
+      }
     }
   }
 
