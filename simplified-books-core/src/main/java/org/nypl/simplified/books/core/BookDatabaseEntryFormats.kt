@@ -148,9 +148,6 @@ sealed class BookDatabaseEntryFormatHandle {
      * @throws IOException On I/O errors or lock acquisition failures
      */
 
-    @Throws(IOException::class)
-    abstract fun deleteBookData(): BookDatabaseEntrySnapshot
-
     abstract override fun snapshot(): BookDatabaseEntryFormatSnapshotPDF
   }
 

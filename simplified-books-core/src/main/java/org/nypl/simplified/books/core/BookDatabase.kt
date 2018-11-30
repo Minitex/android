@@ -130,7 +130,7 @@ class BookDatabase private constructor(
             DatabaseBookFormatHandleConstructor(
               classType = DBEntryFormatHandlePDF::class.java,
               supportedContentTypes = format.supportedContentTypes(),
-              constructor = { format, entry -> DBEntryFormatHandlePDF(format, entry)}
+              constructor = { bookID, format, entry -> DBEntryFormatHandlePDF(bookID, format, entry)}
             )
           }
         }
@@ -595,18 +595,14 @@ class BookDatabase private constructor(
    * Operations on PDF formats in database entries.
    */
 
-  private class DBEntryFormatHandlePDF(
+  private inner class DBEntryFormatHandlePDF(
+          private val bookID: BookID,
           override val formatDefinition: BookFormatDefinition,
           private val owner: BookDatabaseEntry) : BookDatabaseEntryFormatHandlePDF() {
 
-//    private val fileAdobeRightsTmp: File =
-//            File(this.owner.directory, "rights_adobe.xml.tmp")
-//    private val fileAdobeRights: File =
-//            File(this.owner.directory, "rights_adobe.xml")
-//    private val fileAdobeMeta: File =
-//            File(this.owner.directory, "meta_adobe.json")
-//    private val fileAdobeMetaTmp: File =
-//            File(this.owner.directory, "meta_adobe.json.tmp")
+    private val log: Logger =
+            LoggerFactory.getLogger(DBEntryFormatHandlePDF::class.java)
+
     private val fileBook: File =
             File(this.owner.directory, "book.pdf")
 
@@ -623,6 +619,7 @@ class BookDatabase private constructor(
 
     @Throws(IOException::class)
     private fun lockedDestroyBookData() {
+      this.log.debug("[{}]: destroying book data", this.bookID.shortID)
       FileUtilities.fileDelete(this.fileBook)
     }
 

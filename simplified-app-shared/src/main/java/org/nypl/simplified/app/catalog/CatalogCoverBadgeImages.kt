@@ -9,6 +9,7 @@ import org.nypl.simplified.app.ScreenSizeControllerType
 import org.nypl.simplified.books.core.BookFormats
 import org.nypl.simplified.books.core.BookFormats.BookFormatDefinition.BOOK_FORMAT_AUDIO
 import org.nypl.simplified.books.core.BookFormats.BookFormatDefinition.BOOK_FORMAT_EPUB
+import org.nypl.simplified.books.core.BookFormats.BookFormatDefinition.BOOK_FORMAT_PDF
 import org.nypl.simplified.books.core.FeedEntryOPDS
 import org.nypl.simplified.books.covers.BookCoverBadge
 import org.nypl.simplified.books.covers.BookCoverBadgeLookupType
@@ -29,6 +30,7 @@ class CatalogCoverBadgeImages private constructor(
       when (format) {
         null,
         BOOK_FORMAT_EPUB -> null
+        BOOK_FORMAT_PDF -> null
         BOOK_FORMAT_AUDIO ->
           BookCoverBadge(
             bitmap = this.audioBookIcon,

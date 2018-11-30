@@ -38,6 +38,7 @@ import org.nypl.simplified.books.core.BookDatabaseReadableType
 import org.nypl.simplified.books.core.BookFormats
 import org.nypl.simplified.books.core.BookFormats.BookFormatDefinition.BOOK_FORMAT_AUDIO
 import org.nypl.simplified.books.core.BookFormats.BookFormatDefinition.BOOK_FORMAT_EPUB
+import org.nypl.simplified.books.core.BookFormats.BookFormatDefinition.BOOK_FORMAT_PDF
 import org.nypl.simplified.books.core.BookID
 import org.nypl.simplified.books.core.BookStatusDownloadFailed
 import org.nypl.simplified.books.core.BookStatusDownloadInProgress
@@ -948,7 +949,7 @@ class CatalogBookDetailView(
 
     fun configureViewTextFormat(resources: Resources, entry: FeedEntryOPDS, bookHeaderFormat: TextView) {
       val formatOpt = entry.probableFormat
-      if (formatOpt is Some<BookFormats.BookFormatDefinition>) {
+      return if (formatOpt is Some<BookFormats.BookFormatDefinition>) {
         val format = formatOpt.get()
         when (format) {
           BOOK_FORMAT_EPUB -> {
@@ -959,6 +960,10 @@ class CatalogBookDetailView(
           BOOK_FORMAT_AUDIO -> {
             bookHeaderFormat.visibility = View.VISIBLE
             bookHeaderFormat.text = resources.getText(R.string.book_format_audiobook)
+          }
+          BOOK_FORMAT_PDF -> {
+            bookHeaderFormat.visibility = View.VISIBLE
+            bookHeaderFormat.text = resources.getText(R.string.book_format_pdf)
           }
           null -> {
             bookHeaderFormat.visibility = View.INVISIBLE

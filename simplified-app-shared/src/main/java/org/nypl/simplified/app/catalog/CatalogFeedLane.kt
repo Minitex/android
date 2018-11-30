@@ -195,6 +195,7 @@ class CatalogFeedLane(
         null,
         BOOK_FORMAT_EPUB -> resources.getString(R.string.catalog_accessibility_cover_epub, entry.feedEntry.title)
         BOOK_FORMAT_AUDIO -> resources.getString(R.string.catalog_accessibility_cover_audiobook, entry.feedEntry.title)
+        BOOK_FORMAT_PDF -> resources.getString(R.string.catalog_accessibility_cover_pdf, entry.feedEntry.title)
       }
     } else {
       entry.feedEntry.title
